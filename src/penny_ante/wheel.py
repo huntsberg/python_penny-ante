@@ -81,7 +81,7 @@ class Wheel:
         max_bytes = bytes([int('0xFF',16)]) * self.random_size
         max_value = int.from_bytes(max_bytes, "big")
 
-        self.current_space =  self.spaces[round((rand_val/max_value)*len(self.spaces))]
+        self.current_space =  self.spaces[(round((rand_val/max_value)*len(self.spaces))) - 1]
 
         return True
 
