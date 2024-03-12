@@ -28,9 +28,9 @@ dependencies = []
 spin-wheel-once = "penny_ante.game:spin_wheel"
 
 [project.urls]
-Documentation = "https://github.com/unknown/penny-ante#readme"
-Issues = "https://github.com/unknown/penny-ante/issues"
-Source = "https://github.com/unknown/penny-ante"
+Documentation = "https://github.com/huntsberg/python_penny-ante#readme"
+Issues = "https://github.com/huntesberg/python_penny-ante/issues"
+Source = "https://github.com/huntsberg/python_penny-ante"
 
 [tool.hatch.version]
 path = "src/penny_ante/__about__.py"
