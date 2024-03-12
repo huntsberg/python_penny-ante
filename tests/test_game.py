@@ -27,5 +27,25 @@ class TestGame(unittest.TestCase):
         second_result = test_game.current_space.value
         self.assertNotEqual(first_result, second_result)
 
+    def test_add_single_player(self):
+        test_game = Game(table_type = 'AMERICAN')
+        test_game.add_player(player_name='Billy')
+        self.assertEqual(len(test_game.players), 1)
+        self.assertEqual(test_game.players['Billy'].name, 'Billy')
+
+    def test_add_multiple_players(self):
+        test_game = Game(table_type = 'AMERICAN')
+        test_game.add_player(player_name='Billy')
+        test_game.add_player(player_name='Bobby')
+        self.assertEqual(len(test_game.players), 2)
+    
+    def test_only_one_player_per_name(self):
+        test_game = Game(table_type = 'AMERICAN')
+        test_game.add_player(player_name='Billy')
+        with self.assertRaises(Exception):
+            test_game.add_player(player_name='Billy')
+
+        
+
 if __name__ == '__main__':
     unittest.main()
