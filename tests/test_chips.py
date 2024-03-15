@@ -16,6 +16,34 @@ class TestChips(unittest.TestCase):
     def test_create_chips_set_value(self):
         test_chips = Chips(value = 1)
         self.assertEqual(test_chips.value, 1)
+    
+    def test_buy_chips_instantiate_value(self):
+        test_chips = Chips(value=5)
+        test_chips.add_chips(count=10)
+        self.assertEqual(test_chips.cash_value(), 50)
+
+    def test_buy_chips_set_value_at_add(self):
+        test_chips = Chips()
+        test_chips.add_chips(value=50, count=10)
+        self.assertEqual(test_chips.cash_value(), 500)
+
+    def test_buy_chips_change_value(self):
+        test_chips = Chips(value=5)            
+        with self.assertRaises(Exception):
+            test_chips.add_chips(value=10, count=1)
+
+    def test_buy_chips_no_value_set(self):
+        test_chips = Chips()            
+        with self.assertRaises(Exception):
+            test_chips.add_chips(count=1)
+
+    def test_cash_value_new(self):
+        test_chips = Chips()
+        self.assertEqual(test_chips.cash_value(), None)
+
+    def test_cash_value_some_chips(self):
+        test_chips = Chips()
+        self.assertEqual(test_chips.cash_value(), None)
 
 if __name__ == '__main__':
     unittest.main()
