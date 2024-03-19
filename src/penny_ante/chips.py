@@ -8,19 +8,25 @@ class Chips:
             return None
          return self.value*self.count
 
-    def add_chips(self, count = None, value = None, chips = None):
+    def change_chips(self, count = None, value = None, chips = None):
         if chips != None:
             if self.value != chips.value:
-                raise Exception("To add chip stacks, the chip values must be the same.")
+                raise Exception("To change chip stacks, the chip values must be the same.")
             self.count += chips.count
             return
+        
+        if self.count + count < 0:
+            raise Exception("There are not enough chips available to make the requested chip count change.")
+
         if value == None:
             if self.value == None:
                 raise Exception("Chip value must be set when adding chips for the first time.")
-        else:
+        else: 
             if self.value == None:
                 self.value = value
             else:
                 raise Exception("Chip Value cannot be changed after the chips have been established.")
+
         self.count += count 
+
         return

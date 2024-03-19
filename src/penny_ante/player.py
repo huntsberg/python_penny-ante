@@ -8,6 +8,6 @@ class Player:
     def buy_chips(self, count, value = 1):
         if self.chips == None:
             self.chips = Chips(value = value)
-        self.chips.add_chips(count = count)
+        self.chips.change_chips(count = count)
 
     
