@@ -20,8 +20,6 @@ class Game:
         self.players[player_name] = Player(name = player_name)
         return True
 
-    def buy_chips(self, player_name, value = None, count = 0) -> bool:
-        return True
 
 
 def spin_wheel():
