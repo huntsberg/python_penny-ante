@@ -59,11 +59,24 @@ class TestWheel(unittest.TestCase):
 
     def test_spin(self):
         test_wheel = Wheel(wheel_type = 'AMERICAN')
-        test_wheel.spin()
-        first_result = test_wheel.current_space.value
-        test_wheel.spin()
-        second_result = test_wheel.current_space.value
-        self.assertNotEqual(first_result, second_result)
+        results = []
+        for iteration in range(100):
+            test_wheel.spin()
+            results.append(test_wheel.current_space.value)
+        
+        values = {}
+        for value in results:
+            if value not in values:
+                values[str(value)] = 0
+                
+            values[str(value)] += 1
+        
+        selected_numbers = list(values.keys())
+
+        print(selected_numbers)
+
+        # Hopefully it doesn't choose the same number 100 times.
+        self.assertNotEqual(selected_numbers[0], selected_numbers[len(selected_numbers)-1])
 
 if __name__ == '__main__':
     unittest.main()
