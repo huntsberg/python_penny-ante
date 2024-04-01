@@ -10,12 +10,12 @@ class TestWheel(unittest.TestCase):
         with self.assertRaises(Exception):
             result = Wheel()
 
-    def test_set_wheel_american(self):
+    def test_create_wheel_american(self):
         test_wheel = Wheel(wheel_type = 'AMERICAN')
         result = test_wheel.type
         self.assertEqual(result, 'AMERICAN')
 
-    def test_set_wheel_european(self):
+    def test_create_wheel_european(self):
         test_wheel = Wheel(wheel_type = 'EUROPEAN')
         result = test_wheel.type
         self.assertEqual(result, 'EUROPEAN')
@@ -45,10 +45,14 @@ class TestWheel(unittest.TestCase):
         test_wheel = Wheel(wheel_type = 'AMERICAN')
         self.assertEqual(test_wheel.spaces[0].color, 'GREEN')
         self.assertEqual(test_wheel.spaces[0].value, '0')
-        self.assertEqual(test_wheel.spaces[19].color, 'GREEN')
-        self.assertEqual(test_wheel.spaces[19].value, '00')
+        self.assertEqual(test_wheel.spaces[1].color, 'BLACK')
+        self.assertEqual(test_wheel.spaces[1].value, '28')
         self.assertEqual(test_wheel.spaces[10].color, 'RED')
         self.assertEqual(test_wheel.spaces[10].value, '5')
+        self.assertEqual(test_wheel.spaces[19].color, 'GREEN')
+        self.assertEqual(test_wheel.spaces[19].value, '00')
+        self.assertEqual(test_wheel.spaces[20].color, 'RED')
+        self.assertEqual(test_wheel.spaces[20].value, '27')
         self.assertEqual(test_wheel.spaces[21].color, 'BLACK')
         self.assertEqual(test_wheel.spaces[21].value, '10')
         self.assertEqual(test_wheel.spaces[30].color, 'RED')
@@ -68,7 +72,7 @@ class TestWheel(unittest.TestCase):
         for value in results:
             if value not in values:
                 values[str(value)] = 0
-                
+
             values[str(value)] += 1
         
         selected_numbers = list(values.keys())

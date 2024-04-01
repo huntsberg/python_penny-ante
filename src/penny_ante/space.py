@@ -1,7 +1,9 @@
 class Space:
-    def __init__(self, location, value, color):
-        if location == None or value == None or color == None:
-            raise Exception("To instantiate a space, location, number, and color are rquired.")
-        self.location = location
+    def __init__(self, value):
+        if value == None:
+            raise Exception("To instantiate a space, number is required.")
         self.value = str(value)
-        self.color = color
+        self.color = None
+        self.wheel_location = None
+        self.layout_row = None
+        self.layout_column = None
