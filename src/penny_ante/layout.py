@@ -1,4 +1,5 @@
 import os
+from typing import AnyStr
 
 from penny_ante.space import Space
 from penny_ante.wheel import Wheel
@@ -48,3 +49,5 @@ class Layout:
     
         self.dolly = None
     
+    def find_space(self, space: AnyStr):
+        return self.layout[self.lookup[space][0]][self.lookup[space][1]]
