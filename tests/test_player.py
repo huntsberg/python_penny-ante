@@ -3,7 +3,7 @@ import unittest
 from .context import penny_ante
 from penny_ante.player import Player
 
-class TestChips(unittest.TestCase):
+class TestPlayer(unittest.TestCase):
 
     def test_create_player(self):
         test_player = Player(name = 'Bobby')
