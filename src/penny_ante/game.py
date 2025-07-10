@@ -1,19 +1,20 @@
 from typing import Optional, Dict
-from penny_ante.wheel import Wheel
+from penny_ante.table import Table
+from penny_ante.croupier import Croupier
 from penny_ante.player import Player
 
 
 class Game:
     """
-    Represents a roulette game with wheel, players, and game state management.
+    Represents a roulette game with table, croupier, and player management.
 
-    This class manages the overall game state including the roulette wheel,
-    players, and current game position. It supports both American and European
-    roulette wheel types.
+    This class manages the overall game state including the roulette table,
+    croupier operations, and players. It supports both American and European
+    roulette table types.
 
     Attributes:
-        wheel (Wheel): The roulette wheel used in the game
-        current_space (Optional[Space]): The current space the ball landed on
+        table (Table): The roulette table with wheel and layout
+        croupier (Croupier): The croupier managing game operations
         players (Dict[str, Player]): Dictionary of players keyed by name
     """
 
@@ -29,19 +30,23 @@ class Game:
         """
         if table_type is None:
             raise Exception("Table type must be defined when creating the game.")
-        self.wheel = Wheel(wheel_type=table_type)
-        self.current_space = None
+        self.table = Table(table_type=table_type)
+        self.croupier = Croupier(table=self.table)
         self.players: Dict[str, Player] = {}
 
     def spin_wheel(self) -> None:
         """
-        Spin the roulette wheel and update the current space.
+        Spin the roulette wheel via the croupier.
 
-        This method triggers the wheel to spin and sets the current_space
-        to the result of the spin.
+        This method triggers the croupier to spin the wheel and update the
+        current game state.
         """
-        self.wheel.spin()
-        self.current_space = self.wheel.current_space
+        self.croupier.spin_wheel()
+
+    @property
+    def current_space(self):
+        """Get the current space where the ball landed."""
+        return self.table.wheel.current_space
 
     def add_player(self, player_name: str) -> bool:
         """

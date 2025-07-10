@@ -1,35 +1,36 @@
-from typing import Union
+from typing import Union, Optional
 
 
 class Space:
     """
     Represents a single space on a roulette wheel.
 
-    Each space has a location (position on the wheel), a value (the number
-    or symbol), and a color (RED, BLACK, or GREEN for house spaces).
+    Each space has a value (the number or symbol) and various attributes
+    that get set during wheel initialization, including position, color,
+    and layout coordinates.
 
     Attributes:
-        location (int): The position of this space on the wheel
         value (str): The value displayed on this space (e.g., "0", "00", "1"-"36")
-        color (str): The color of this space ('RED', 'BLACK', or 'GREEN')
+        color (Optional[str]): The color of this space ('RED', 'BLACK', or 'GREEN')
+        wheel_location (Optional[int]): The position of this space on the wheel
+        layout_row (Optional[int]): The row position in the betting layout
+        layout_column (Optional[int]): The column position in the betting layout
     """
 
-    def __init__(self, location: int, value: Union[str, int], color: str) -> None:
+    def __init__(self, value: Union[str, int]) -> None:
         """
         Initialize a new roulette wheel space.
 
         Args:
-            location: The position of this space on the wheel (0-based index)
             value: The value displayed on this space (number or symbol)
-            color: The color of this space ('RED', 'BLACK', or 'GREEN')
 
         Raises:
-            Exception: If any of the required parameters are None
+            Exception: If value is None
         """
-        if location is None or value is None or color is None:
-            raise Exception(
-                "To instantiate a space, location, number, and " "color are required."
-            )
-        self.location = location
+        if value is None:
+            raise Exception("To instantiate a space, a value is required.")
         self.value = str(value)
-        self.color = color
+        self.color: Optional[str] = None
+        self.wheel_location: Optional[int] = None
+        self.layout_row: Optional[int] = None
+        self.layout_column: Optional[int] = None
