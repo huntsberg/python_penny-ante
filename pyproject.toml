@@ -39,6 +39,7 @@ path = "src/penny_ante/__about__.py"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
+  "black",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
@@ -51,6 +52,8 @@ cov = [
   "test-cov",
   "cov-report",
 ]
+format = "black {args:src/penny_ante tests}"
+format-check = "black --check {args:src/penny_ante tests}"
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
@@ -63,9 +66,8 @@ dependencies = [
 check = "mypy --install-types --non-interactive {args:src/penny_ante tests}"
 
 [tool.coverage.run]
-source_pkgs = ["penny_ante", "tests"]
+source = ["src/penny_ante"]
 branch = true
-parallel = true
 omit = [
   "src/penny_ante/__about__.py",
 ]
@@ -79,4 +81,75 @@ exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.poe.tasks]
+# Testing tasks
+test = "pytest tests/ -v"
+test-fast = "pytest tests/ -x"
+test-cov = "coverage run -m pytest tests/"
+test-cov-report = "coverage report -m"
+test-cov-html = "coverage html"
+test-all = ["test-cov", "test-cov-report"]
+
+# Code formatting and linting
+format = "black src/penny_ante/ tests/"
+format-check = "black --check src/penny_ante/ tests/"
+format-diff = "black --diff src/penny_ante/ tests/"
+
+# Type checking (when mypy is available)
+typecheck = "mypy src/penny_ante/ --ignore-missing-imports"
+
+# Code quality checks
+lint = "python -m py_compile src/penny_ante/*.py"
+check-all = ["format-check", "lint", "test"]
+
+# Build and package tasks
+clean = "rm -rf build/ dist/ *.egg-info/ .coverage htmlcov/ .pytest_cache/ .mypy_cache/"
+build = "python -m build"
+install-dev = "pip install -e . --index-url https://pypi.org/simple/"
+
+# Development utilities
+demo = "python -c 'from penny_ante.game import spin_wheel; spin_wheel()'"
+wheel-demo = { cmd = "python -c 'from penny_ante.game import Game; g = Game(\"AMERICAN\"); [g.spin_wheel() or print(f\"Spin {i+1}: {g.current_space.value} ({g.current_space.color})\") for i in range(5)]'", help = "Demo 5 wheel spins" }
+info = { cmd = "python -c 'from penny_ante import __about__; print(f\"penny-ante v{__about__.__version__}\")'", help = "Show version info" }
+setup = { cmd = "./setup-dev.sh", help = "Run automated development setup (requires bash)" }
+
+# Composite tasks
+dev-setup = ["install-dev", "info"]
+pre-commit = ["format", "check-all"]
+ci = ["format-check", "test-cov", "test-cov-report"]
+
+[tool.poe.tasks.serve-docs]
+help = "Serve coverage report on localhost:8000"
+cmd = "python -m http.server 8000"
+cwd = "htmlcov"
+
+[tool.poe.tasks.release-check]
+help = "Check if ready for release"
+sequence = [
+  "clean",
+  "format-check", 
+  "lint",
+  "test-cov",
+  { cmd = "coverage report --fail-under=80", help = "Ensure 80% test coverage" },
+  "build"
 ]
