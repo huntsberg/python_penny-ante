@@ -13,6 +13,7 @@ from .layout import Layout
 from .space import Space
 from .croupier import Croupier
 from .bet import Bet, BetType
+from .betting_rules import BettingRules
 
 __all__ = [
     "Game",
@@ -25,4 +26,5 @@ __all__ = [
     "Croupier",
     "Bet",
     "BetType",
+    "BettingRules",
 ]

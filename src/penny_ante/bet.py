@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from penny_ante.space import Space
     from penny_ante.layout import Layout
     from penny_ante.chips import Chips
+    from penny_ante.betting_rules import BettingRules
 
 
 class BetType(Enum):
@@ -73,7 +74,8 @@ class Bet:
         spaces: Union[List[str], Set[str], str],
         amount: int,
         chips: Optional["Chips"] = None,
-        layout: Optional["Layout"] = None
+        layout: Optional["Layout"] = None,
+        betting_rules: Optional["BettingRules"] = None
     ) -> None:
         """
         Initialize a new bet.
@@ -84,6 +86,7 @@ class Bet:
             amount: The amount being wagered (in chip count)
             chips: The chips being used for this bet
             layout: The layout to validate against
+            betting_rules: The betting rules configuration to use
 
         Raises:
             ValueError: If the bet configuration is invalid
@@ -91,6 +94,7 @@ class Bet:
         self.bet_type = bet_type
         self.amount = amount
         self.chips = chips
+        self.betting_rules = betting_rules
         
         # Normalize spaces to a set of strings
         if isinstance(spaces, str):
@@ -103,6 +107,10 @@ class Bet:
         # Validate the bet
         if layout:
             self._validate_bet(layout)
+            
+        # Validate betting rules if provided
+        if betting_rules:
+            self._validate_betting_rules()
         
         # Calculate layout positions if layout is provided
         self.layout_positions: List[tuple] = []
@@ -129,6 +137,26 @@ class Bet:
         
         # Validate bet type matches the spaces
         self._validate_bet_type_matches_spaces(layout)
+        
+    def _validate_betting_rules(self) -> None:
+        """
+        Validate bet against betting rules if provided.
+        
+        Raises:
+            ValueError: If bet violates betting rules
+        """
+        if not self.betting_rules:
+            return
+            
+        # Check if bet type is allowed
+        if not self.betting_rules.is_bet_allowed(self.bet_type):
+            raise ValueError(f"Bet type {self.bet_type.value} is not allowed on this table")
+            
+        # Check bet amount limits
+        if not self.betting_rules.validate_bet_amount(self.bet_type, self.amount):
+            min_bet = self.betting_rules.get_minimum_bet(self.bet_type)
+            max_bet = self.betting_rules.get_maximum_bet(self.bet_type)
+            raise ValueError(f"Bet amount {self.amount} is outside allowed range [{min_bet}, {max_bet}] for {self.bet_type.value}")
 
     def _validate_bet_type_matches_spaces(self, layout: "Layout") -> None:
         """
@@ -238,11 +266,47 @@ class Bet:
         if not self.is_winning_bet(winning_space):
             return 0
             
-        payout_ratio = self.PAYOUT_RATIOS[self.bet_type]
+        # Use betting rules payout ratio if available, otherwise use default
+        if self.betting_rules:
+            try:
+                payout_ratio = self.betting_rules.get_payout_ratio(self.bet_type)
+            except ValueError:
+                # Fall back to default if bet type not in rules
+                payout_ratio = self.PAYOUT_RATIOS[self.bet_type]
+        else:
+            payout_ratio = self.PAYOUT_RATIOS[self.bet_type]
+            
         winnings = self.amount * payout_ratio
         total_payout = self.amount + winnings  # Return original bet plus winnings
         
         return total_payout
+        
+    def get_effective_payout_ratio(self) -> int:
+        """
+        Get the effective payout ratio for this bet.
+        
+        Returns:
+            The payout ratio (considering betting rules if available)
+        """
+        if self.betting_rules and self.betting_rules.is_bet_allowed(self.bet_type):
+            try:
+                return self.betting_rules.get_payout_ratio(self.bet_type)
+            except ValueError:
+                pass
+        return self.PAYOUT_RATIOS[self.bet_type]
+        
+    def get_house_edge(self) -> float:
+        """
+        Get the house edge for this bet type.
+        
+        Returns:
+            House edge as a percentage
+        """
+        if self.betting_rules:
+            return self.betting_rules.get_house_edge(self.bet_type)
+        else:
+            # Default house edge (American roulette)
+            return 5.26
 
     @classmethod
     def create_straight_up_bet(
@@ -250,7 +314,8 @@ class Bet:
         space_value: str, 
         amount: int, 
         chips: Optional["Chips"] = None,
-        layout: Optional["Layout"] = None
+        layout: Optional["Layout"] = None,
+        betting_rules: Optional["BettingRules"] = None
     ) -> "Bet":
         """
         Create a straight up bet on a single number.
@@ -260,11 +325,12 @@ class Bet:
             amount: The amount to wager
             chips: The chips being used
             layout: The layout to validate against
+            betting_rules: The betting rules to use
 
         Returns:
             A new Bet object for a straight up bet
         """
-        return cls(BetType.STRAIGHT_UP, space_value, amount, chips, layout)
+        return cls(BetType.STRAIGHT_UP, space_value, amount, chips, layout, betting_rules)
 
     @classmethod
     def create_split_bet(
@@ -273,7 +339,8 @@ class Bet:
         space2: str,
         amount: int,
         chips: Optional["Chips"] = None,
-        layout: Optional["Layout"] = None
+        layout: Optional["Layout"] = None,
+        betting_rules: Optional["BettingRules"] = None
     ) -> "Bet":
         """
         Create a split bet on two adjacent numbers.
@@ -288,7 +355,7 @@ class Bet:
         Returns:
             A new Bet object for a split bet
         """
-        return cls(BetType.SPLIT, [space1, space2], amount, chips, layout)
+        return cls(BetType.SPLIT, [space1, space2], amount, chips, layout, betting_rules)
 
     @classmethod
     def create_color_bet(
@@ -296,7 +363,8 @@ class Bet:
         color: str,
         amount: int,
         chips: Optional["Chips"] = None,
-        layout: Optional["Layout"] = None
+        layout: Optional["Layout"] = None,
+        betting_rules: Optional["BettingRules"] = None
     ) -> "Bet":
         """
         Create a color bet (red or black).
@@ -333,7 +401,8 @@ class Bet:
         dozen: int,
         amount: int,
         chips: Optional["Chips"] = None,
-        layout: Optional["Layout"] = None
+        layout: Optional["Layout"] = None,
+        betting_rules: Optional["BettingRules"] = None
     ) -> "Bet":
         """
         Create a dozen bet (1-12, 13-24, or 25-36).
@@ -370,7 +439,8 @@ class Bet:
         column: int,
         amount: int,
         chips: Optional["Chips"] = None,
-        layout: Optional["Layout"] = None
+        layout: Optional["Layout"] = None,
+        betting_rules: Optional["BettingRules"] = None
     ) -> "Bet":
         """
         Create a column bet.
