@@ -2,30 +2,27 @@
 #
 # SPDX-License-Identifier: MIT
 
-"""
-Penny Ante - A Python roulette wheel game simulator.
-
-This package provides a realistic casino architecture for roulette games,
-including table management, croupier operations, player management, and
-comprehensive chip handling.
-"""
+"""Penny Ante - A Simple Roulette Simulator."""
 
 from .game import Game
-from .table import Table
-from .croupier import Croupier
-from .layout import Layout
-from .wheel import Wheel
 from .player import Player
 from .chips import Chips
+from .table import Table
+from .wheel import Wheel
+from .layout import Layout
 from .space import Space
+from .croupier import Croupier
+from .bet import Bet, BetType
 
 __all__ = [
     "Game",
-    "Table", 
-    "Croupier",
-    "Layout",
-    "Wheel",
-    "Player",
+    "Player", 
     "Chips",
+    "Table",
+    "Wheel",
+    "Layout",
     "Space",
+    "Croupier",
+    "Bet",
+    "BetType",
 ]
