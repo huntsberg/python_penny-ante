@@ -1,0 +1,87 @@
+# European Roulette Betting Rules Configuration
+# Table type: EUROPEAN (includes only 0, no 00)
+
+# Standard European roulette payout ratios
+payout_ratios:
+  straight_up: 35        # Single number
+  split: 17             # Two adjacent numbers
+  street: 11            # Three numbers in a row
+  corner: 8             # Four numbers in a square
+  six_line: 5           # Six numbers (two rows)
+  red: 1                # Red numbers
+  black: 1              # Black numbers
+  odd: 1                # Odd numbers
+  even: 1               # Even numbers
+  high: 1               # Numbers 19-36
+  low: 1                # Numbers 1-18
+  first_dozen: 2        # Numbers 1-12
+  second_dozen: 2       # Numbers 13-24
+  third_dozen: 2        # Numbers 25-36
+  first_column: 2       # First column
+  second_column: 2      # Second column
+  third_column: 2       # Third column
+
+# Minimum bet amounts (as ratios of the table minimum bet)
+minimum_bet_ratios:
+  global: 1.0           # Default minimum ratio for all bets (100% of table min)
+  straight_up: 0.5      # Lower minimum for high-risk bets (50% of table min)
+  split: 0.5            # 50% of table min
+  street: 1.0           # 100% of table min
+  corner: 1.0           # 100% of table min
+  six_line: 1.0         # 100% of table min
+  red: 5.0              # Higher minimum for outside bets (500% of table min)
+  black: 5.0            # 500% of table min
+  odd: 5.0              # 500% of table min
+  even: 5.0             # 500% of table min
+  high: 5.0             # 500% of table min
+  low: 5.0              # 500% of table min
+  first_dozen: 5.0      # 500% of table min
+  second_dozen: 5.0     # 500% of table min
+  third_dozen: 5.0      # 500% of table min
+  first_column: 5.0     # 500% of table min
+  second_column: 5.0    # 500% of table min
+  third_column: 5.0     # 500% of table min
+
+# Maximum bet amounts (as ratios of the table maximum bet)
+maximum_bet_ratios:
+  global: 1.0           # Default maximum ratio for all bets (100% of table max)
+  straight_up: 0.6      # Slightly higher than American for high-payout bets
+  split: 0.8            # 80% of table max
+  street: 0.9           # 90% of table max
+  corner: 0.95          # 95% of table max
+  six_line: 1.0         # 100% of table max
+  red: 1.0              # Full maximum for outside bets
+  black: 1.0
+  odd: 1.0
+  even: 1.0
+  high: 1.0
+  low: 1.0
+  first_dozen: 1.0
+  second_dozen: 1.0
+  third_dozen: 1.0
+  first_column: 1.0
+  second_column: 1.0
+  third_column: 1.0
+
+# Note: House edge is calculated automatically based on payout ratios and table type
+# European roulette: ~2.70% for most bets due to 37 pockets (single 0)
+
+# Table limits for European roulette - typically higher limits
+table_limits:
+  minimum_bet: 2        # Table minimum bet
+  maximum_bet: 2000000  # Table maximum bet (2 million)
+  maximum_total_bet: 20000000  # Maximum total bets per spin (20 million)
+
+# Casino-specific rules for European tables
+casino_rules:
+  en_prison: true       # En prison rule - bet stays for another spin on even money bets
+  la_partage: true      # La partage rule - half bet returned on zero for even money bets
+  surrender: false      # Surrender rule not typically used in European roulette
+  maximum_repeats: 15   # Higher tolerance before investigation in European casinos
+
+# Special betting rules
+special_rules:
+  allow_call_bets: true      # Oral bets without chips on table (common in Europe)
+  allow_neighbor_bets: true  # Bets on numbers adjacent on wheel
+  progressive_betting: true  # Allow progressive betting systems
+  maximum_parlay: 10        # Higher parlay limit than American tables 

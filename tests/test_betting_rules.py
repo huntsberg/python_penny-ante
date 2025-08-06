@@ -23,10 +23,10 @@ payout_ratios:
   red: 1
   first_dozen: 2
 
-minimum_bets:
-  global: 5
-  straight_up: 1
-  red: 10
+minimum_bet_ratios:
+  global: 5.0
+  straight_up: 0.2
+  red: 10.0
 
 maximum_bet_ratios:
   global: 1.0
@@ -34,19 +34,12 @@ maximum_bet_ratios:
   split: 0.75
   red: 1.0
 
-house_edge:
-  straight_up: 5.26
-  red: 5.26
+# Note: house_edge now calculated automatically
 
 table_limits:
-  AMERICAN:
-    minimum_bet: 5
-    maximum_bet: 100000
-    maximum_total_bet: 1000000
-  EUROPEAN:
-    minimum_bet: 5
-    maximum_bet: 100000
-    maximum_total_bet: 1000000
+  minimum_bet: 5
+  maximum_bet: 100000
+  maximum_total_bet: 1000000
 """
         
         with open(self.config_path, 'w') as f:
@@ -103,14 +96,26 @@ table_limits:
         self.assertEqual(rules.get_maximum_bet_ratio(BetType.EVEN), 1.0)  # Uses global
     
     def test_minimum_bet_rules(self):
-        """Test minimum bet calculations."""
+        """Test minimum bet calculations with ratios."""
         rules = BettingRules(config_path=self.config_path, table_type="AMERICAN")
         
+        # Table minimum is 5, straight_up ratio is 0.2, so 5 * 0.2 = 1
         self.assertEqual(rules.get_minimum_bet(BetType.STRAIGHT_UP), 1)
-        self.assertEqual(rules.get_minimum_bet(BetType.RED), 10)
+        # Table minimum is 5, red ratio is 10.0, so 5 * 10.0 = 50
+        self.assertEqual(rules.get_minimum_bet(BetType.RED), 50)
         
-        # Test fallback to global minimum
-        self.assertEqual(rules.get_minimum_bet(BetType.EVEN), 5)  # Uses global
+        # Test fallback to global minimum ratio (5.0), so 5 * 5.0 = 25
+        self.assertEqual(rules.get_minimum_bet(BetType.EVEN), 25)  # Uses global
+    
+    def test_minimum_bet_ratios(self):
+        """Test minimum bet ratio retrieval."""
+        rules = BettingRules(config_path=self.config_path, table_type="AMERICAN")
+        
+        self.assertEqual(rules.get_minimum_bet_ratio(BetType.STRAIGHT_UP), 0.2)
+        self.assertEqual(rules.get_minimum_bet_ratio(BetType.RED), 10.0)
+        
+        # Test fallback to global ratio
+        self.assertEqual(rules.get_minimum_bet_ratio(BetType.EVEN), 5.0)  # Uses global
     
     def test_payout_ratio_retrieval(self):
         """Test payout ratio retrieval."""
@@ -125,29 +130,29 @@ table_limits:
             rules.get_payout_ratio(BetType.EVEN)  # Not in test config
     
     def test_house_edge_calculation(self):
-        """Test house edge retrieval."""
+        """Test calculated house edge."""
         rules = BettingRules(config_path=self.config_path, table_type="AMERICAN")
         
-        self.assertEqual(rules.get_house_edge(BetType.STRAIGHT_UP), 5.26)
-        self.assertEqual(rules.get_house_edge(BetType.RED), 5.26)
+        # House edge should be calculated based on payout ratios and table type
+        # American table has 38 pockets, so house edge for all standard bets should be 5.26%
+        self.assertAlmostEqual(rules.get_house_edge(BetType.STRAIGHT_UP), 5.26, places=2)
+        self.assertAlmostEqual(rules.get_house_edge(BetType.RED), 5.26, places=2)
         
-        # Test default house edge for American table
-        self.assertEqual(rules.get_house_edge(BetType.EVEN), 5.26)
-        
-        # Test European table default
+        # Test European table (37 pockets)
         rules_european = BettingRules(config_path=self.config_path, table_type="EUROPEAN")
-        self.assertEqual(rules_european.get_house_edge(BetType.EVEN), 2.70)
+        self.assertAlmostEqual(rules_european.get_house_edge(BetType.STRAIGHT_UP), 2.70, places=2)
+        self.assertAlmostEqual(rules_european.get_house_edge(BetType.RED), 2.70, places=2)
     
     def test_bet_amount_validation(self):
-        """Test bet amount validation."""
+        """Test bet amount validation with ratio-based minimums."""
         rules = BettingRules(config_path=self.config_path, table_type="AMERICAN")
         
         # Valid amounts
         self.assertTrue(rules.validate_bet_amount(BetType.STRAIGHT_UP, 50))  # Between 1 and 50000
-        self.assertTrue(rules.validate_bet_amount(BetType.RED, 50))  # Between 10 and 100000
+        self.assertTrue(rules.validate_bet_amount(BetType.RED, 100))  # Between 50 and 100000
         
-        # Invalid amounts - too low
-        self.assertFalse(rules.validate_bet_amount(BetType.RED, 5))  # Below minimum of 10
+        # Invalid amounts - too low (red minimum is now 50, not 10)
+        self.assertFalse(rules.validate_bet_amount(BetType.RED, 25))  # Below minimum of 50
         
         # Invalid amounts - too high
         self.assertFalse(rules.validate_bet_amount(BetType.STRAIGHT_UP, 60000))  # Above max of 50000
@@ -182,7 +187,8 @@ table_limits:
         self.assertEqual(info['maximum_bet'], 100000)
         self.assertEqual(info['maximum_total_bet'], 1000000)
         self.assertIn('payout_ratios', info)
-        self.assertIn('house_edge_default', info)
+        self.assertIn('house_edge_calculated', info)
+        self.assertIn('total_pockets', info)
     
     def test_configuration_validation_errors(self):
         """Test configuration validation with missing sections."""
@@ -201,28 +207,23 @@ payout_ratios:
         
         os.remove(invalid_path)
     
-    def test_missing_table_type_configuration(self):
-        """Test error when table type is not configured."""
-        config_without_table = """
+    def test_missing_required_sections(self):
+        """Test error when required configuration sections are missing."""
+        config_without_required = """
 payout_ratios:
   straight_up: 35
-minimum_bets:
-  global: 1
-maximum_bet_ratios:
+minimum_bet_ratios:
   global: 1.0
-table_limits:
-  EUROPEAN:
-    minimum_bet: 1
-    maximum_bet: 100000
+# Missing maximum_bet_ratios and table_limits
 """
-        missing_table_path = os.path.join(self.temp_dir, "missing_table.yaml")
-        with open(missing_table_path, 'w') as f:
-            f.write(config_without_table)
+        missing_sections_path = os.path.join(self.temp_dir, "missing_sections.yaml")
+        with open(missing_sections_path, 'w') as f:
+            f.write(config_without_required)
         
         with self.assertRaises(ValueError):
-            BettingRules(config_path=missing_table_path, table_type="AMERICAN")
+            BettingRules(config_path=missing_sections_path, table_type="AMERICAN")
         
-        os.remove(missing_table_path)
+        os.remove(missing_sections_path)
     
     def test_file_not_found_error(self):
         """Test error when configuration file doesn't exist."""
@@ -267,9 +268,9 @@ table_limits:
         self.assertEqual(american_rules.get_table_minimum(), european_rules.get_table_minimum())
         self.assertEqual(american_rules.get_table_maximum(), european_rules.get_table_maximum())
         
-        # But different default house edges
-        self.assertEqual(american_rules.get_house_edge(BetType.EVEN), 5.26)
-        self.assertEqual(european_rules.get_house_edge(BetType.EVEN), 2.70)
+        # But different calculated house edges
+        self.assertAlmostEqual(american_rules.get_house_edge(BetType.RED), 5.26, places=2)
+        self.assertAlmostEqual(european_rules.get_house_edge(BetType.RED), 2.70, places=2)
     
     def test_edge_case_ratios(self):
         """Test edge cases for bet ratios."""
@@ -279,8 +280,8 @@ payout_ratios:
   straight_up: 35
   red: 1
 
-minimum_bets:
-  global: 1
+minimum_bet_ratios:
+  global: 1.0
 
 maximum_bet_ratios:
   global: 1.0
@@ -288,10 +289,9 @@ maximum_bet_ratios:
   red: 2.0          # Ratio above 1.0
 
 table_limits:
-  AMERICAN:
-    minimum_bet: 1
-    maximum_bet: 1000
-    maximum_total_bet: 10000
+  minimum_bet: 1
+  maximum_bet: 1000
+  maximum_total_bet: 10000
 """
         extreme_path = os.path.join(self.temp_dir, "extreme.yaml")
         with open(extreme_path, 'w') as f:

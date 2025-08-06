@@ -9,45 +9,62 @@ if TYPE_CHECKING:
 
 class BettingRules:
     """
-    Manages         betting rules and configuration for roulette games.
+    Manages betting rules and configuration for roulette games.
     
     This class reads betting rules from YAML configuration files, including
     payout ratios, minimum bets, maximum bet ratios, and other casino-specific
-    betting parameters.
+    betting parameters. Automatically selects the appropriate configuration
+    file based on table type (American or European).
     
     Attributes:
         config (Dict[str, Any]): The loaded configuration dictionary
         table_type (str): The type of table ('AMERICAN' or 'EUROPEAN')
         payout_ratios (Dict): Payout ratios for each bet type
-        minimum_bets (Dict): Minimum bet amounts for each bet type
+        minimum_bet_ratios (Dict): Minimum bet ratios for each bet type
         maximum_bet_ratios (Dict): Maximum bet ratios for each bet type
-        house_edge (Dict): House edge percentages for each bet type
+        # Note: house_edge is now calculated dynamically based on payout ratios and table type
+        casino_rules (Dict): Casino-specific rules
+        special_rules (Dict): Special betting rules
     """
-    
-    DEFAULT_CONFIG_PATH = "config/betting_rules.yaml"
+
+    DEFAULT_AMERICAN_CONFIG = "config/american_rules.yaml"
+    DEFAULT_EUROPEAN_CONFIG = "config/european_rules.yaml"
     
     def __init__(self, config_path: Optional[str] = None, table_type: str = "AMERICAN") -> None:
         """
         Initialize betting rules from configuration file.
         
         Args:
-            config_path: Path to YAML configuration file. If None, uses default.
-            table_type: Type of table ('AMERICAN' or 'EUROPEAN')
+            config_path: Path to YAML configuration file. If None, uses table-specific default.
+            table_type: Type of roulette table ('AMERICAN' or 'EUROPEAN')
             
         Raises:
             FileNotFoundError: If configuration file doesn't exist
             ValueError: If configuration is invalid
         """
-        self.table_type = table_type
-        self.config_path = config_path or self.DEFAULT_CONFIG_PATH
+        self.table_type = table_type.upper()
+        
+        # Use table-specific default path if none provided
+        if config_path is None:
+            if self.table_type == "AMERICAN":
+                config_path = self.DEFAULT_AMERICAN_CONFIG
+            elif self.table_type == "EUROPEAN":
+                config_path = self.DEFAULT_EUROPEAN_CONFIG
+            else:
+                raise ValueError(f"Unsupported table type: {table_type}")
+        
+        self.config_path = config_path
         self.config = self._load_config()
+        self._validate_config(self.config)
         
         # Extract configuration sections
         self.payout_ratios = self._get_payout_ratios()
-        self.minimum_bets = self._get_minimum_bets()
+        self.minimum_bet_ratios = self._get_minimum_bet_ratios()
         self.maximum_bet_ratios = self._get_maximum_bet_ratios()
-        self.house_edge = self._get_house_edge()
         self.table_limits = self._get_table_limits()
+        self.casino_rules = self._get_casino_rules()
+        self.special_rules = self._get_special_rules()
+        # Note: house_edge is now calculated dynamically, not stored
         
     def _load_config(self) -> Dict[str, Any]:
         """
@@ -94,36 +111,40 @@ class BettingRules:
         Raises:
             ValueError: If required sections are missing
         """
-        required_sections = ['payout_ratios', 'minimum_bets', 'maximum_bet_ratios', 'table_limits']
+        required_sections = ['payout_ratios', 'minimum_bet_ratios', 'maximum_bet_ratios', 'table_limits']
+        # Note: house_edge no longer required - calculated automatically
         missing_sections = [section for section in required_sections if section not in config]
         
         if missing_sections:
             raise ValueError(f"Missing required configuration sections: {missing_sections}")
-            
-        # Validate table type specific configuration exists
-        if self.table_type not in config.get('table_limits', {}):
-            raise ValueError(f"No configuration found for table type: {self.table_type}")
+        
+        # Note: With separate config files, we no longer need table_type validation
             
     def _get_payout_ratios(self) -> Dict[str, int]:
         """Get payout ratios from configuration."""
         return self.config.get('payout_ratios', {})
         
-    def _get_minimum_bets(self) -> Dict[str, int]:
-        """Get minimum bets from configuration."""
-        return self.config.get('minimum_bets', {})
+    def _get_minimum_bet_ratios(self) -> Dict[str, float]:
+        """Get minimum bet ratios from configuration."""
+        return self.config.get('minimum_bet_ratios', {})
         
     def _get_maximum_bet_ratios(self) -> Dict[str, float]:
         """Get maximum bet ratios from configuration."""
         return self.config.get('maximum_bet_ratios', {})
         
-    def _get_house_edge(self) -> Dict[str, float]:
-        """Get house edge percentages from configuration."""
-        return self.config.get('house_edge', {})
+    # Note: _get_house_edge removed - house edge is now calculated dynamically
         
-    def _get_table_limits(self) -> Dict[str, Any]:
-        """Get table-specific limits from configuration."""
-        table_config = self.config.get('table_limits', {}).get(self.table_type, {})
-        return table_config
+    def _get_table_limits(self) -> Dict[str, int]:
+        """Get table limits from configuration."""
+        return self.config.get('table_limits', {})
+    
+    def _get_casino_rules(self) -> Dict[str, Any]:
+        """Get casino-specific rules from configuration."""
+        return self.config.get('casino_rules', {})
+    
+    def _get_special_rules(self) -> Dict[str, Any]:
+        """Get special betting rules from configuration."""
+        return self.config.get('special_rules', {})
         
     def get_payout_ratio(self, bet_type: "BetType") -> int:
         """
@@ -153,17 +174,20 @@ class BettingRules:
             bet_type: The type of bet
             
         Returns:
-            Minimum bet amount
+            Minimum bet amount (calculated from ratio and table minimum)
         """
         bet_type_str = bet_type.value if hasattr(bet_type, 'value') else str(bet_type)
+        table_minimum = self.table_limits.get('minimum_bet', 1)
         
-        # Return specific minimum or global minimum
-        if bet_type_str in self.minimum_bets:
-            return self.minimum_bets[bet_type_str]
-        elif 'global' in self.minimum_bets:
-            return self.minimum_bets['global']
+        # Get ratio for this bet type or use global ratio
+        if bet_type_str in self.minimum_bet_ratios:
+            ratio = self.minimum_bet_ratios[bet_type_str]
+        elif 'global' in self.minimum_bet_ratios:
+            ratio = self.minimum_bet_ratios['global']
         else:
-            return self.table_limits.get('minimum_bet', 1)
+            ratio = 1.0  # Default to 100% of table minimum
+            
+        return int(table_minimum * ratio)
             
     def get_maximum_bet(self, bet_type: "BetType") -> int:
         """
@@ -190,25 +214,89 @@ class BettingRules:
             
     def get_house_edge(self, bet_type: "BetType") -> float:
         """
-        Get the house edge percentage for a specific bet type.
+        Calculate the house edge percentage for a specific bet type.
+        
+        The house edge is calculated mathematically based on:
+        - The probability of winning the bet
+        - The payout ratio offered
+        - The number of possible outcomes (37 for European, 38 for American)
+        
+        Formula: House Edge = (1 - (Winning Probability × (Payout + 1))) × 100
         
         Args:
             bet_type: The type of bet
             
         Returns:
-            House edge as a percentage (e.g., 5.26 for 5.26%)
+            Calculated house edge as a percentage (e.g., 5.26 for 5.26%)
+        """
+        return self._calculate_house_edge(bet_type)
+    
+    def _calculate_house_edge(self, bet_type: "BetType") -> float:
+        """
+        Calculate the mathematical house edge for a bet type.
+        
+        Args:
+            bet_type: The type of bet to calculate house edge for
+            
+        Returns:
+            House edge as a percentage
+        """
+        # Get the number of pockets on the wheel
+        total_pockets = 37 if self.table_type == "EUROPEAN" else 38
+        
+        # Get the payout ratio for this bet type
+        payout_ratio = self.get_payout_ratio(bet_type)
+        
+        # Determine winning outcomes for each bet type
+        winning_outcomes = self._get_winning_outcomes(bet_type)
+        
+        # Calculate probability of winning
+        win_probability = winning_outcomes / total_pockets
+        
+        # Calculate house edge: (1 - (win_probability × (payout + 1))) × 100
+        house_edge = (1 - (win_probability * (payout_ratio + 1))) * 100
+        
+        return round(house_edge, 2)
+    
+    def _get_winning_outcomes(self, bet_type: "BetType") -> int:
+        """
+        Get the number of winning outcomes for a specific bet type.
+        
+        Args:
+            bet_type: The type of bet
+            
+        Returns:
+            Number of winning outcomes on the wheel
         """
         bet_type_str = bet_type.value if hasattr(bet_type, 'value') else str(bet_type)
         
-        # Return specific house edge or default based on table type
-        if bet_type_str in self.house_edge:
-            return self.house_edge[bet_type_str]
+        # Inside bets
+        if bet_type_str == 'straight_up':
+            return 1  # Single number
+        elif bet_type_str == 'split':
+            return 2  # Two adjacent numbers
+        elif bet_type_str == 'street':
+            return 3  # Three numbers in a row
+        elif bet_type_str == 'corner':
+            return 4  # Four numbers in a square
+        elif bet_type_str == 'six_line':
+            return 6  # Six numbers (two rows)
+        
+        # Outside bets
+        elif bet_type_str in ['red', 'black']:
+            return 18  # 18 red or 18 black numbers
+        elif bet_type_str in ['odd', 'even']:
+            return 18  # 18 odd or 18 even numbers (0 doesn't count)
+        elif bet_type_str in ['high', 'low']:
+            return 18  # 18 high (19-36) or 18 low (1-18) numbers
+        elif bet_type_str in ['first_dozen', 'second_dozen', 'third_dozen']:
+            return 12  # 12 numbers in each dozen
+        elif bet_type_str in ['first_column', 'second_column', 'third_column']:
+            return 12  # 12 numbers in each column
+        
+        # Default fallback
         else:
-            # Default house edges
-            if self.table_type == "AMERICAN":
-                return 5.26  # Standard American roulette house edge
-            else:
-                return 2.70  # Standard European roulette house edge
+            raise ValueError(f"Unknown bet type for house edge calculation: {bet_type_str}")
                 
     def validate_bet_amount(self, bet_type: "BetType", amount: int) -> bool:
         """
@@ -264,15 +352,45 @@ class BettingRules:
         Returns:
             Dictionary with table limits, rules, and configuration
         """
+        # Import BetType to calculate a representative house edge
+        from penny_ante.bet import BetType
+        
+        # Calculate house edge for a representative bet type (red)
+        try:
+            representative_house_edge = self.get_house_edge(BetType.RED)
+        except (ValueError, AttributeError):
+            # Fallback if calculation fails
+            representative_house_edge = 5.26 if self.table_type == "AMERICAN" else 2.70
+        
         return {
             'table_type': self.table_type,
             'minimum_bet': self.get_table_minimum(),
             'maximum_bet': self.get_table_maximum(),
             'maximum_total_bet': self.get_maximum_total_bet(),
             'payout_ratios': self.get_all_payout_ratios(),
-            'house_edge_default': 5.26 if self.table_type == "AMERICAN" else 2.70
+            'house_edge_calculated': representative_house_edge,
+            'total_pockets': 37 if self.table_type == "EUROPEAN" else 38
         }
         
+    def get_minimum_bet_ratio(self, bet_type: "BetType") -> float:
+        """
+        Get the minimum bet ratio for a specific bet type.
+        
+        Args:
+            bet_type: The type of bet
+            
+        Returns:
+            Minimum bet ratio (1.0 or higher, representing multiples of table minimum)
+        """
+        bet_type_str = bet_type.value if hasattr(bet_type, 'value') else str(bet_type)
+        
+        if bet_type_str in self.minimum_bet_ratios:
+            return self.minimum_bet_ratios[bet_type_str]
+        elif 'global' in self.minimum_bet_ratios:
+            return self.minimum_bet_ratios['global']
+        else:
+            return 1.0  # Default to 100% of table minimum
+
     def get_maximum_bet_ratio(self, bet_type: "BetType") -> float:
         """
         Get the maximum bet ratio for a specific bet type.
@@ -320,20 +438,17 @@ class BettingRules:
                 'second_column': 2,
                 'third_column': 2
             },
-            'minimum_bets': {
-                'global': 1,
-                'straight_up': 1,
-                'outside_bets': 5  # Higher minimum for outside bets
+            'minimum_bet_ratios': {
+                'global': 1.0,
+                'straight_up': 1.0,
+                'outside_bets': 5.0  # Higher minimum for outside bets
             },
             'maximum_bet_ratios': {
                 'global': 1.0,
                 'straight_up': 0.5,
                 'outside_bets': 1.0
             },
-            'house_edge': {
-                'straight_up': 5.26,
-                'outside_bets': 5.26
-            },
+            # Note: house_edge is now calculated automatically
             'table_limits': {
                 'AMERICAN': {
                     'minimum_bet': 1,

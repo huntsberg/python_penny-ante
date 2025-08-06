@@ -2,6 +2,7 @@ from typing import Optional, Dict
 from penny_ante.table import Table
 from penny_ante.croupier import Croupier
 from penny_ante.player import Player
+from penny_ante.betting_rules import BettingRules
 
 
 class Game:
@@ -9,30 +10,40 @@ class Game:
     Represents a roulette game with table, croupier, and player management.
 
     This class manages the overall game state including the roulette table,
-    croupier operations, and players. It supports both American and European
-    roulette table types.
+    croupier operations, players, and betting rules. It supports both American 
+    and European roulette table types with configurable betting rules.
 
     Attributes:
         table (Table): The roulette table with wheel and layout
         croupier (Croupier): The croupier managing game operations
         players (Dict[str, Player]): Dictionary of players keyed by name
+        betting_rules (BettingRules): The betting rules configuration
     """
 
-    def __init__(self, table_type: Optional[str]) -> None:
+    def __init__(self, table_type: Optional[str], betting_rules_config: Optional[str] = None) -> None:
         """
-        Initialize a new game with the specified table type.
+        Initialize a new game with the specified table type and betting rules.
 
         Args:
             table_type: The type of roulette table ('AMERICAN' or 'EUROPEAN')
+            betting_rules_config: Optional path to custom betting rules YAML file.
+                                If None, uses the appropriate default config for table type.
 
         Raises:
             Exception: If table_type is None or not specified
         """
         if table_type is None:
             raise Exception("Table type must be defined when creating the game.")
+        
         self.table = Table(table_type=table_type)
         self.croupier = Croupier(table=self.table)
         self.players: Dict[str, Player] = {}
+        
+        # Initialize betting rules with table-specific or custom configuration
+        self.betting_rules = BettingRules(
+            config_path=betting_rules_config, 
+            table_type=table_type
+        )
 
     def spin_wheel(self) -> None:
         """
@@ -98,4 +109,5 @@ def spin_wheel() -> None:
     """
     my_game = Game(table_type="AMERICAN")
     my_game.spin_wheel()
-    print(my_game.current_space.value)
+    if my_game.current_space is not None:
+        print(my_game.current_space.value)
