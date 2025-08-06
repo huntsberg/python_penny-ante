@@ -212,10 +212,10 @@ def main():
     print("   • Supports any mathematically valid payout structure")
     print()
     
-    # === COMPARISON WITH REAL CASINO VALUES ===
-    print("=== COMPARISON WITH REAL CASINO VALUES ===")
-    
-    print("Standard Casino House Edges (calculated):")
+    # === COMPARISON WITH REAL GAME VALUES ===
+    print("=== COMPARISON WITH REAL GAME VALUES ===")
+    print()
+    print("Standard Game House Edges (calculated):")
     real_edges = [
         ("Straight Up", american_rules.get_house_edge(BetType.STRAIGHT_UP), "5.26%"),
         ("Split", american_rules.get_house_edge(BetType.SPLIT), "5.26%"),
@@ -223,7 +223,7 @@ def main():
         ("Dozen", american_rules.get_house_edge(BetType.FIRST_DOZEN), "5.26%"),
     ]
     
-    print(f"{'Bet Type':<12} {'Calculated':<11} {'Real Casino':<12} {'Match'}")
+    print(f"{'Bet Type':<12} {'Calculated':<11} {'Real Game':<12} {'Match'}")
     print("-" * 45)
     for bet_name, calculated, real in real_edges:
         match = "✓" if abs(calculated - float(real.strip('%'))) < 0.01 else "✗"
@@ -245,7 +245,7 @@ def main():
     print("  ✓ American vs European differences")
     print("  ✓ Custom payout ratio impact")
     print("  ✓ Simplified configuration (no manual house edge)")
-    print("  ✓ Real casino value verification")
+    print("  ✓ Real game value verification")
 
 
 if __name__ == "__main__":

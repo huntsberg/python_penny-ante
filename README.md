@@ -3,11 +3,11 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/penny-ante.svg)](https://pypi.org/project/penny-ante)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/penny-ante.svg)](https://pypi.org/project/penny-ante)
 
-A Python implementation of a roulette wheel game simulator with a realistic casino architecture. This package provides classes for managing roulette games, including American and European wheel types, table management, croupier operations, player management, and comprehensive chip handling.
+A Python implementation of a roulette wheel game simulator with a realistic game architecture. This package provides classes for managing roulette games, including American and European wheel types, table management, croupier operations, player management, and comprehensive chip handling.
 
 ## Features
 
-- **Realistic Casino Architecture**: Modeled after real casino operations with Table, Croupier, and Layout classes
+- **Realistic Game Architecture**: Modeled after real game operations with Table, Croupier, and Layout classes
 - **Multiple Wheel Types**: Support for both American (38 spaces) and European (37 spaces) roulette wheels
 - **Professional Table Management**: Integrated wheel and betting layout management
 - **Croupier Operations**: Dedicated croupier for handling game operations and wheel spinning
@@ -48,7 +48,7 @@ print(f"Alice has ${game.players['Alice'].chips.cash_value()} in chips")
 
 ## Architecture Overview
 
-The package uses a realistic casino architecture:
+The package uses a realistic game architecture:
 
 - **Game**: Main game controller that orchestrates all components
 - **Table**: Manages the physical roulette table with wheel and betting layout

@@ -184,7 +184,7 @@ def main():
         print()
         
         print("2. Flexible Configuration:")
-        print("   • Inside bets can have lower ratios (less risk for casino)")
+        print("   • Inside bets can have lower ratios (less risk for house)")
         print("   • Outside bets can have higher ratios (encourage larger bets)")
         print("   • Easy to adjust relative minimum relationships")
         print()

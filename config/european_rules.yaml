@@ -72,12 +72,12 @@ table_limits:
   maximum_bet: 2000000  # Table maximum bet (2 million)
   maximum_total_bet: 20000000  # Maximum total bets per spin (20 million)
 
-# Casino-specific rules for European tables
-casino_rules:
+# Game-specific rules for European tables
+game_rules:
   en_prison: true       # En prison rule - bet stays for another spin on even money bets
   la_partage: true      # La partage rule - half bet returned on zero for even money bets
   surrender: false      # Surrender rule not typically used in European roulette
-  maximum_repeats: 15   # Higher tolerance before investigation in European casinos
+  maximum_repeats: 15   # Higher tolerance before investigation in European games
 
 # Special betting rules
 special_rules:

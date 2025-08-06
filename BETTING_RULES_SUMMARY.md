@@ -10,7 +10,7 @@ I've created a comprehensive configurable betting rules system that allows you t
 - **File-based configuration**: Rules stored in `config/betting_rules.yaml`
 - **Flexible structure**: Easy to modify and extend
 - **Validation**: Comprehensive validation of configuration files
-- **Multiple configurations**: Support for different table types and casino setups
+- **Multiple configurations**: Support for different table types and game setups
 
 ### 📊 **Ratio-Based Maximum Bets**
 - **Intelligent scaling**: Maximum bets expressed as ratios of table maximum
@@ -135,7 +135,7 @@ If table maximum is $1,000,000:
 
 ## Usage Examples
 
-### 1. **Standard Casino Setup**
+### 1. **Standard Game Setup**
 ```python
 # Use default configuration
 rules = BettingRules(table_type="AMERICAN")
@@ -153,7 +153,7 @@ high_roller_rules = BettingRules(config_path="high_roller.yaml", table_type="AME
 bet = Bet.create_straight_up_bet("17", amount=100000, betting_rules=high_roller_rules)
 ```
 
-### 3. **Custom Casino Rules**
+### 3. **Custom Game Rules**
 ```python
 # Create custom configuration
 BettingRules.create_default_config("custom_rules.yaml")
@@ -181,7 +181,7 @@ max_bet = rules.get_maximum_bet(BetType.RED)
 
 ## Configuration Examples
 
-### Standard Casino
+### Standard Game
 ```yaml
 payout_ratios:
   straight_up: 35
@@ -197,7 +197,7 @@ table_limits:
 ```
 **Result**: Straight up max = $500K, Red max = $1M
 
-### High Roller Casino
+### High Roller Game
 ```yaml
 payout_ratios:
   straight_up: 40    # Higher payout
@@ -213,7 +213,7 @@ table_limits:
 ```
 **Result**: Straight up max = $1.5M, Red max = $5M
 
-### Conservative Casino
+### Conservative Game
 ```yaml
 payout_ratios:
   straight_up: 30    # Lower payout
@@ -248,14 +248,14 @@ table_limits:
 - ✅ Table type differences
 - ✅ String representations
 
-## Benefits for Casino Operations
+## Benefits for Game Operations
 
 ### 🎯 **Flexibility**
 - **Easy configuration changes**: Modify rules without code changes
-- **Multiple table types**: Different configurations for different tables
+- **Multiple games**: Different configurations for different properties
 - **Rapid deployment**: Change rules and restart
 
-### 🛡️ **Risk Management**
+### ��️ **Risk Management**
 - **Automatic scaling**: Ratio-based limits prevent excessive exposure
 - **Granular control**: Different limits for different bet types
 - **Validation**: Automatic enforcement of betting limits
@@ -266,7 +266,7 @@ table_limits:
 - **Configuration versioning**: Track rule changes over time
 
 ### 🚀 **Scalability**
-- **Multiple casinos**: Different configurations for different properties
+- **Multiple games**: Different configurations for different properties
 - **A/B testing**: Test different rule sets
 - **Dynamic adjustment**: Modify rules based on performance
 
@@ -294,8 +294,8 @@ The configurable betting rules system provides:
 ✅ **Complete flexibility** through YAML configuration  
 ✅ **Intelligent ratio-based** maximum bet calculations  
 ✅ **Comprehensive validation** of all betting rules  
-✅ **Easy customization** for different casino setups  
+✅ **Easy customization** for different game setups  
 ✅ **Robust testing** with 100% coverage  
 ✅ **Production-ready** implementation  
 
-This system transforms the penny-ante roulette simulator from a fixed-rule game into a fully configurable casino platform suitable for real-world use. 
+This system transforms the penny-ante roulette simulator from a fixed-rule game into a fully configurable game platform suitable for real-world use. 

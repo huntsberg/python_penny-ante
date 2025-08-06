@@ -33,7 +33,7 @@ Minimum Bet Amount = Table Minimum × Minimum Bet Ratio
 
 ## Configuration Changes
 
-### American Configuration (`config/american_betting_rules.yaml`)
+### American Configuration (`config/american_rules.yaml`)
 ```yaml
 minimum_bet_ratios:
   global: 1.0           # Default: 100% of table minimum

@@ -72,11 +72,11 @@ table_limits:
   maximum_bet: 1000000  # Table maximum bet (1 million)
   maximum_total_bet: 10000000  # Maximum total bets per spin (10 million)
 
-# Casino-specific rules for American tables
-casino_rules:
+# Game-specific rules for American tables
+game_rules:
   en_prison: false      # En prison rule not typically used in American roulette
   la_partage: false     # La partage rule not used in American roulette
-  surrender: false      # Surrender rule (some American casinos offer this)
+  surrender: false      # Surrender rule (some American games offer this)
   maximum_repeats: 10   # Maximum consecutive spins on same number before investigation
 
 # Special betting rules

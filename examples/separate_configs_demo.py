@@ -45,6 +45,26 @@ minimum_bets:
   high: 500
   low: 500
 
+minimum_bet_ratios:
+  global: 1.0
+  straight_up: 5.0       # Higher minimum for inside bets
+  split: 5.0
+  street: 5.0
+  corner: 5.0
+  six_line: 5.0
+  red: 10.0              # Higher minimum for outside bets
+  black: 10.0
+  odd: 10.0
+  even: 10.0
+  high: 10.0
+  low: 10.0
+  first_dozen: 10.0
+  second_dozen: 10.0
+  third_dozen: 10.0
+  first_column: 10.0
+  second_column: 10.0
+  third_column: 10.0
+
 maximum_bet_ratios:
   global: 1.0
   straight_up: 0.25      # Conservative for high payouts
@@ -52,17 +72,12 @@ maximum_bet_ratios:
   street: 0.6
   red: 1.0
 
-house_edge:
-  straight_up: 4.0       # Lower house edge
-  red: 4.0
-  black: 4.0
-
 table_limits:
   minimum_bet: 100
   maximum_bet: 10000000  # 10 million max
   maximum_total_bet: 100000000
 
-casino_rules:
+game_rules:
   en_prison: false
   la_partage: false
   surrender: true        # Offer surrender on high stakes
@@ -232,21 +247,21 @@ def main():
         print("American configuration features:")
         american_info = american_game.betting_rules.get_table_info()
         print(f"  • House edge: {american_info.get('house_edge_default', 'N/A')}%")
-        print(f"  • En prison rule: {american_game.betting_rules.casino_rules.get('en_prison', False)}")
-        print(f"  • La partage rule: {american_game.betting_rules.casino_rules.get('la_partage', False)}")
+        print(f"  • En prison rule: {american_game.betting_rules.game_rules.get('en_prison', False)}")
+        print(f"  • La partage rule: {american_game.betting_rules.game_rules.get('la_partage', False)}")
         print(f"  • Call bets allowed: {american_game.betting_rules.special_rules.get('allow_call_bets', False)}")
         
         print("\nEuropean configuration features:")
         european_info = european_game.betting_rules.get_table_info()
         print(f"  • House edge: {european_info.get('house_edge_default', 'N/A')}%")
-        print(f"  • En prison rule: {european_game.betting_rules.casino_rules.get('en_prison', False)}")
-        print(f"  • La partage rule: {european_game.betting_rules.casino_rules.get('la_partage', False)}")
+        print(f"  • En prison rule: {european_game.betting_rules.game_rules.get('en_prison', False)}")
+        print(f"  • La partage rule: {european_game.betting_rules.game_rules.get('la_partage', False)}")
         print(f"  • Call bets allowed: {european_game.betting_rules.special_rules.get('allow_call_bets', False)}")
         
         print("\nHigh stakes configuration features:")
         high_stakes_info = high_stakes_game.betting_rules.get_table_info()
         print(f"  • House edge: {high_stakes_info.get('house_edge_default', 'N/A')}%")
-        print(f"  • Surrender rule: {high_stakes_game.betting_rules.casino_rules.get('surrender', False)}")
+        print(f"  • Surrender rule: {high_stakes_game.betting_rules.game_rules.get('surrender', False)}")
         print(f"  • Maximum parlay: {high_stakes_game.betting_rules.special_rules.get('maximum_parlay', 'N/A')}")
         print(f"  • Call bets allowed: {high_stakes_game.betting_rules.special_rules.get('allow_call_bets', False)}")
         
@@ -260,7 +275,7 @@ def main():
     print("  ✓ American vs European rule differences")
     print("  ✓ Custom configuration files with Game class")
     print("  ✓ Table-specific betting validation")
-    print("  ✓ Casino rules and special betting features")
+    print("  ✓ Game rules and special betting features")
     print("  ✓ Ratio-based maximum bet calculations")
     
     print("\nConfiguration Files:")

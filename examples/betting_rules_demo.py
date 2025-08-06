@@ -14,7 +14,7 @@ import os
 def create_custom_config():
     """Create a custom configuration file with different rules."""
     custom_config = """
-# Custom Casino Configuration - High Roller Table
+# Custom Game Configuration - High Roller Table
 payout_ratios:
   straight_up: 40        # Higher payout than standard 35:1
   split: 20             # Higher than standard 17:1
@@ -30,15 +30,24 @@ payout_ratios:
   second_dozen: 3
   third_dozen: 3
 
-minimum_bets:
-  global: 100           # High minimum for VIP table
-  straight_up: 50       # Lower minimum for high-risk bets
-  red: 200              # Higher minimum for outside bets
-  black: 200
-  odd: 200
-  even: 200
-  high: 200
-  low: 200
+minimum_bet_ratios:
+  global: 1.0           # Default ratio
+  straight_up: 0.5      # Lower ratio for high-risk bets
+  split: 0.5
+  street: 1.0
+  corner: 1.0
+  red: 2.0              # Higher ratio for outside bets
+  black: 2.0
+  odd: 2.0
+  even: 2.0
+  high: 2.0
+  low: 2.0
+  first_dozen: 2.0
+  second_dozen: 2.0
+  third_dozen: 2.0
+  first_column: 2.0
+  second_column: 2.0
+  third_column: 2.0
 
 maximum_bet_ratios:
   global: 1.0           # 100% of table maximum
@@ -46,6 +55,7 @@ maximum_bet_ratios:
   split: 0.5            # 50% for split bets
   street: 0.7           # 70% for street bets
   corner: 0.8           # 80% for corner bets
+  six_line: 0.9         # 90% for six line bets
   red: 1.0              # Full amount for outside bets
   black: 1.0
   odd: 1.0
@@ -55,21 +65,14 @@ maximum_bet_ratios:
   first_dozen: 0.9      # 90% for dozen bets
   second_dozen: 0.9
   third_dozen: 0.9
-
-house_edge:
-  straight_up: 4.5      # Lower house edge for high roller table
-  red: 4.5
-  black: 4.5
+  first_column: 0.9
+  second_column: 0.9
+  third_column: 0.9
 
 table_limits:
-  AMERICAN:
-    minimum_bet: 100
-    maximum_bet: 5000000     # 5 million maximum
-    maximum_total_bet: 50000000  # 50 million total per spin
-  EUROPEAN:
-    minimum_bet: 100
-    maximum_bet: 5000000
-    maximum_total_bet: 50000000
+  minimum_bet: 100
+  maximum_bet: 5000000     # 5 million maximum
+  maximum_total_bet: 50000000  # 50 million total per spin
 """
     
     # Create temporary file
@@ -85,7 +88,7 @@ def main():
     print("🎰 Penny Ante Configurable Betting Rules Demo 🎰\n")
     
     # === STANDARD CONFIGURATION ===
-    print("=== STANDARD CASINO CONFIGURATION ===")
+    print("=== STANDARD GAME CONFIGURATION ===")
     
     # Load default configuration
     standard_rules = BettingRules(table_type="AMERICAN")

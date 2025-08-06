@@ -6,13 +6,13 @@ I've successfully split the betting rules configuration into separate files for 
 
 ## Configuration Files
 
-### 📁 `config/american_betting_rules.yaml`
+### 📁 `config/american_rules.yaml`
 - **Purpose**: American roulette configuration (includes 0 and 00)
 - **Features**: Higher house edge (5.26%), no European rules
 - **Table Limits**: $1 minimum, $1M maximum
 - **Special Rules**: No en prison, no la partage, limited call bets
 
-### 📁 `config/european_betting_rules.yaml`
+### 📁 `config/european_rules.yaml`
 - **Purpose**: European roulette configuration (single 0 only)
 - **Features**: Lower house edge (2.70%), European player protections
 - **Table Limits**: $2 minimum, $2M maximum (typically higher limits)
@@ -22,10 +22,10 @@ I've successfully split the betting rules configuration into separate files for 
 
 ### How It Works
 ```python
-# American table - automatically uses american_betting_rules.yaml
+# American table - automatically uses american_rules.yaml
 american_game = Game(table_type="AMERICAN")
 
-# European table - automatically uses european_betting_rules.yaml
+# European table - automatically uses european_rules.yaml
 european_game = Game(table_type="EUROPEAN")
 
 # Custom configuration override
@@ -34,8 +34,8 @@ custom_game = Game(table_type="AMERICAN", betting_rules_config="custom_rules.yam
 
 ### Selection Logic
 1. **No config specified**: System automatically selects based on `table_type`
-   - `"AMERICAN"` → `config/american_betting_rules.yaml`
-   - `"EUROPEAN"` → `config/european_betting_rules.yaml`
+   - `"AMERICAN"` → `config/american_rules.yaml`
+   - `"EUROPEAN"` → `config/european_rules.yaml`
 2. **Custom config specified**: Uses provided file path regardless of table type
 3. **Invalid table type**: Raises `ValueError`
 
@@ -55,7 +55,7 @@ custom_game = Game(table_type="AMERICAN", betting_rules_config="custom_rules.yam
 | Maximum | $1,000,000 | $2,000,000 | +$1,000,000 |
 | Outside Min | $5 | $10 | +$5 |
 
-**Reason**: European casinos typically have higher minimum bets and limits
+**Reason**: European games typically have higher minimum bets and limits
 
 ### Maximum Bet Ratios
 | Bet Type | American | European | Advantage |
@@ -66,7 +66,7 @@ custom_game = Game(table_type="AMERICAN", betting_rules_config="custom_rules.yam
 
 **Reason**: European tables allow higher relative limits due to lower house edge
 
-### Casino Rules
+### Game Rules
 | Rule | American | European | Description |
 |------|----------|----------|-------------|
 | En Prison | ❌ | ✅ | Bet stays for next spin on even money bets when 0 hits |
@@ -82,9 +82,9 @@ def __init__(self, config_path: Optional[str] = None, table_type: str = "AMERICA
     # Automatic file selection based on table type
     if config_path is None:
         if table_type == "AMERICAN":
-            config_path = "config/american_betting_rules.yaml"
+            config_path = "config/american_rules.yaml"
         elif table_type == "EUROPEAN":
-            config_path = "config/european_betting_rules.yaml"
+            config_path = "config/european_rules.yaml"
         else:
             raise ValueError(f"Unsupported table type: {table_type}")
 ```
@@ -92,7 +92,7 @@ def __init__(self, config_path: Optional[str] = None, table_type: str = "AMERICA
 ### New Configuration Sections
 ```python
 # New attributes for enhanced rules
-self.casino_rules = self._get_casino_rules()      # En prison, la partage, etc.
+self.game_rules = self._get_game_rules()      # En prison, la partage, etc.
 self.special_rules = self._get_special_rules()    # Call bets, parlays, etc.
 ```
 
@@ -169,11 +169,11 @@ table_limits:
 
 ### Enhanced Features
 ```yaml
-# New casino-specific rules
-casino_rules:
+# New game-specific rules
+game_rules:
   en_prison: true          # European only
   la_partage: true         # European only
-  surrender: false         # Some American casinos
+  surrender: false         # Some American games
   maximum_repeats: 15      # Monitoring threshold
 
 # New special betting rules
@@ -203,8 +203,8 @@ special_rules:
 rules = BettingRules("old_unified_config.yaml", "AMERICAN")
 
 # New approach (recommended)
-rules = BettingRules(table_type="AMERICAN")  # Auto-selects american_betting_rules.yaml
-rules = BettingRules(table_type="EUROPEAN")  # Auto-selects european_betting_rules.yaml
+rules = BettingRules(table_type="AMERICAN")  # Auto-selects american_rules.yaml
+rules = BettingRules(table_type="EUROPEAN")  # Auto-selects european_rules.yaml
 
 # Custom config (unchanged)
 rules = BettingRules("my_custom_rules.yaml", "AMERICAN")
@@ -213,7 +213,7 @@ rules = BettingRules("my_custom_rules.yaml", "AMERICAN")
 ## Benefits of Separate Configurations
 
 ### 🎯 **Accuracy**
-- **Realistic rules**: Each file reflects actual casino practices
+- **Realistic rules**: Each file reflects actual game practices
 - **Proper house edges**: 5.26% American vs 2.70% European
 - **Authentic features**: En prison and la partage for European tables
 - **Correct limits**: Different minimum/maximum structures
@@ -285,7 +285,7 @@ The separate configuration system provides:
 
 ✅ **Automatic table-specific configuration selection**  
 ✅ **Accurate American vs European rule representation**  
-✅ **Enhanced casino rules and special betting features**  
+✅ **Enhanced game rules and special betting features**  
 ✅ **Simplified configuration file structure**  
 ✅ **Maintained backward compatibility**  
 ✅ **Comprehensive testing coverage**  

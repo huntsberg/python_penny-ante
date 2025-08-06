@@ -12,7 +12,7 @@ class BettingRules:
     Manages betting rules and configuration for roulette games.
     
     This class reads betting rules from YAML configuration files, including
-    payout ratios, minimum bets, maximum bet ratios, and other casino-specific
+    payout ratios, minimum bets, maximum bet ratios, and other game-specific
     betting parameters. Automatically selects the appropriate configuration
     file based on table type (American or European).
     
@@ -23,7 +23,7 @@ class BettingRules:
         minimum_bet_ratios (Dict): Minimum bet ratios for each bet type
         maximum_bet_ratios (Dict): Maximum bet ratios for each bet type
         # Note: house_edge is now calculated dynamically based on payout ratios and table type
-        casino_rules (Dict): Casino-specific rules
+        game_rules (Dict): Game-specific rules
         special_rules (Dict): Special betting rules
     """
 
@@ -62,7 +62,7 @@ class BettingRules:
         self.minimum_bet_ratios = self._get_minimum_bet_ratios()
         self.maximum_bet_ratios = self._get_maximum_bet_ratios()
         self.table_limits = self._get_table_limits()
-        self.casino_rules = self._get_casino_rules()
+        self.game_rules = self._get_game_rules()
         self.special_rules = self._get_special_rules()
         # Note: house_edge is now calculated dynamically, not stored
         
@@ -138,9 +138,9 @@ class BettingRules:
         """Get table limits from configuration."""
         return self.config.get('table_limits', {})
     
-    def _get_casino_rules(self) -> Dict[str, Any]:
-        """Get casino-specific rules from configuration."""
-        return self.config.get('casino_rules', {})
+    def _get_game_rules(self) -> Dict[str, Any]:
+        """Get game-specific rules from configuration."""
+        return self.config.get('game_rules', {})
     
     def _get_special_rules(self) -> Dict[str, Any]:
         """Get special betting rules from configuration."""

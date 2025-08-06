@@ -113,10 +113,10 @@ Every line, branch, and condition in the bet module is tested:
 - **Graceful Degradation**: Proper handling of edge cases
 
 ### 🎰 **Real-World Scenarios**
-- **Casino Accuracy**: All payout ratios match real roulette rules
+- **Game Accuracy**: All payout ratios match real roulette rules
 - **Table Variations**: American (38 spaces) vs European (37 spaces)
 - **Betting Patterns**: From single number to complex outside bets
-- **Large Scale**: Testing with realistic casino bet amounts
+- **Large Scale**: Testing with realistic game bet amounts
 
 ## Test Execution Results
 
@@ -150,7 +150,7 @@ $ python -m pytest tests/ -v
 - Comprehensive scenarios document expected behavior
 
 ### 🎯 **Reliability**
-- All casino betting rules properly validated
+- All game betting rules properly validated
 - Payout calculations verified for accuracy
 - Edge cases handled gracefully
 
@@ -167,4 +167,4 @@ The test suite is designed for easy maintenance:
 - **Comprehensive Coverage**: No untested code paths
 - **Documentation**: Inline comments explaining complex scenarios
 
-This comprehensive testing approach ensures the betting system is robust, reliable, and ready for production use in a real casino environment. 
+This comprehensive testing approach ensures the betting system is robust, reliable, and ready for production use in a real game environment. 
