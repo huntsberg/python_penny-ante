@@ -1,15 +1,15 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [project]
 name = "penny-ante"
 dynamic = ["version"]
-description = ''
+description = "A Python roulette wheel game simulator with realistic game architecture"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-keywords = []
+keywords = ["roulette", "casino", "game", "simulation", "gambling", "wheel", "betting"]
 authors = [
   { name = "Peter Bowen", email = "peter@bowenfamily.org" },
 ]
@@ -29,7 +29,7 @@ spin-wheel-once = "penny_ante.game:spin_wheel"
 
 [project.urls]
 Documentation = "https://github.com/huntsberg/python_penny-ante#readme"
-Issues = "https://github.com/huntesberg/python_penny-ante/issues"
+Issues = "https://github.com/huntsberg/python_penny-ante/issues"
 Source = "https://github.com/huntsberg/python_penny-ante"
 
 [tool.hatch.version]
