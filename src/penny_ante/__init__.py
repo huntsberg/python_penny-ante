@@ -17,7 +17,7 @@ from .betting_rules import BettingRules
 
 __all__ = [
     "Game",
-    "Player", 
+    "Player",
     "Chips",
     "Table",
     "Wheel",
