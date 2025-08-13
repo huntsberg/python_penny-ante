@@ -59,6 +59,30 @@ The package uses a realistic game architecture:
 - **Chips**: Chip collections with value tracking and transaction handling
 - **Space**: Individual spaces on the wheel with position and color information
 
+## Key Features
+
+### 🎯 **Overlay Configuration System**
+Create custom rules that inherit from defaults - no need to specify complete configurations!
+
+```python
+# Only specify what you want to change
+overlay = {
+    "table_limits": {"minimum_bet": 25, "maximum_bet": 5000000},
+    "payout_ratios": {"straight_up": 40}  # Higher than standard 35:1
+}
+
+game = Game(table_type="AMERICAN", overlay_rules=overlay)
+# Everything else inherits from American defaults
+```
+
+**Benefits:**
+- ✅ **Simplified customization** - specify only what changes
+- ✅ **Automatic inheritance** - missing values use sensible defaults  
+- ✅ **Type-safe** - full validation and error handling preserved
+- ✅ **Backward compatible** - existing code works unchanged
+
+See `examples/overlay_rules_demo.py` for comprehensive examples.
+
 ## Usage
 
 ### Creating a Game

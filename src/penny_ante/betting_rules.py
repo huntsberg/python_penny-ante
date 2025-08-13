@@ -30,13 +30,16 @@ class BettingRules:
     DEFAULT_AMERICAN_CONFIG = "config/american_rules.yaml"
     DEFAULT_EUROPEAN_CONFIG = "config/european_rules.yaml"
     
-    def __init__(self, config_path: Optional[str] = None, table_type: str = "AMERICAN") -> None:
+    def __init__(self, config_path: Optional[str] = None, table_type: str = "AMERICAN", 
+                 overlay_config: Optional[Dict[str, Any]] = None) -> None:
         """
-        Initialize betting rules from configuration file.
+        Initialize betting rules from configuration file with optional overlay.
         
         Args:
             config_path: Path to YAML configuration file. If None, uses table-specific default.
             table_type: Type of roulette table ('AMERICAN' or 'EUROPEAN')
+            overlay_config: Optional dictionary to overlay on top of the base configuration.
+                          This allows partial configurations that inherit missing values from defaults.
             
         Raises:
             FileNotFoundError: If configuration file doesn't exist
@@ -54,7 +57,13 @@ class BettingRules:
                 raise ValueError(f"Unsupported table type: {table_type}")
         
         self.config_path = config_path
+        self.overlay_config = overlay_config
         self.config = self._load_config()
+        
+        # Apply overlay configuration if provided
+        if overlay_config:
+            self.config = self._apply_overlay(self.config, overlay_config)
+        
         self._validate_config(self.config)
         
         # Extract configuration sections
@@ -100,6 +109,57 @@ class BettingRules:
             
         except yaml.YAMLError as e:
             raise ValueError(f"Invalid YAML in configuration file: {e}")
+            
+    def _apply_overlay(self, base_config: Dict[str, Any], overlay_config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Apply overlay configuration on top of base configuration.
+        
+        This method performs a deep merge where overlay values take precedence over base values.
+        Missing sections in overlay will use base values, allowing partial configurations.
+        
+        Args:
+            base_config: The base configuration (usually from default files)
+            overlay_config: The overlay configuration to apply on top
+            
+        Returns:
+            Merged configuration dictionary
+        """
+        # Start with a deep copy of the base config
+        merged_config = self._deep_copy_dict(base_config)
+        
+        # Apply overlay values
+        for section_name, section_value in overlay_config.items():
+            if isinstance(section_value, dict) and section_name in merged_config:
+                # Merge dictionaries recursively
+                if isinstance(merged_config[section_name], dict):
+                    merged_config[section_name].update(section_value)
+                else:
+                    merged_config[section_name] = section_value
+            else:
+                # Replace entire section
+                merged_config[section_name] = section_value
+                
+        return merged_config
+    
+    def _deep_copy_dict(self, original: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create a deep copy of a dictionary.
+        
+        Args:
+            original: The dictionary to copy
+            
+        Returns:
+            Deep copy of the dictionary
+        """
+        result = {}
+        for key, value in original.items():
+            if isinstance(value, dict):
+                result[key] = self._deep_copy_dict(value)
+            elif isinstance(value, list):
+                result[key] = value.copy()
+            else:
+                result[key] = value
+        return result
             
     def _validate_config(self, config: Dict[str, Any]) -> None:
         """

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2025-01-27
+
+### Added
+- **Overlay rules system**: New flexible betting rule overlay system
+  - Support for custom rule modifications without changing base configurations
+  - `examples/overlay_rules_demo.py` demonstrating overlay functionality
+  - `OVERLAY_RULES_SUMMARY.md` documentation
+
 ### Changed
 - **BREAKING**: Replaced "casino" terminology with "game" terminology throughout the codebase
   - `casino_rules` → `game_rules` in configuration files and API

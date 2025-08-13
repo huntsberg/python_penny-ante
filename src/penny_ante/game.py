@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 from penny_ante.table import Table
 from penny_ante.croupier import Croupier
 from penny_ante.player import Player
@@ -20,7 +20,8 @@ class Game:
         betting_rules (BettingRules): The betting rules configuration
     """
 
-    def __init__(self, table_type: Optional[str], betting_rules_config: Optional[str] = None) -> None:
+    def __init__(self, table_type: Optional[str], betting_rules_config: Optional[str] = None,
+                 overlay_rules: Optional[Dict[str, Any]] = None) -> None:
         """
         Initialize a new game with the specified table type and betting rules.
 
@@ -28,6 +29,8 @@ class Game:
             table_type: The type of roulette table ('AMERICAN' or 'EUROPEAN')
             betting_rules_config: Optional path to custom betting rules YAML file.
                                 If None, uses the appropriate default config for table type.
+            overlay_rules: Optional dictionary to overlay on top of the base configuration.
+                         This allows partial configurations that inherit missing values from defaults.
 
         Raises:
             Exception: If table_type is None or not specified
@@ -42,7 +45,8 @@ class Game:
         # Initialize betting rules with table-specific or custom configuration
         self.betting_rules = BettingRules(
             config_path=betting_rules_config, 
-            table_type=table_type
+            table_type=table_type,
+            overlay_config=overlay_rules
         )
 
     def spin_wheel(self) -> None:
