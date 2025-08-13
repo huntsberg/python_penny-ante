@@ -33,13 +33,15 @@ class Layout:
 
         # Initialize the layout grid
         value_lookup: Dict[str, List[int]] = {}
-        layout: List[List[Union[int, str, "Space"]]] = [[0 for _ in range(13)] for _ in range(3)]
+        layout: List[List[Union[int, str, "Space"]]] = [
+            [0 for _ in range(13)] for _ in range(3)
+        ]
 
         if self.wheel.type == "AMERICAN":
             # Set up American layout with 0 and 00
             value_lookup["0"] = [0, 0]
             value_lookup["00"] = [1, 0]
-            
+
         elif self.wheel.type == "EUROPEAN":
             # Set up European layout with only 0
             value_lookup["0"] = [0, 0]
@@ -47,9 +49,9 @@ class Layout:
         # Set up the numbered spaces 1-36
         # Numbers 1-36 are arranged in 3 rows and 12 columns
         # Row 0: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34
-        # Row 1: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35  
+        # Row 1: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35
         # Row 2: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36
-        
+
         for column in range(1, 13):  # Columns 1-12
             for row in range(3):  # Rows 0-2
                 value = (column - 1) * 3 + row + 1
@@ -81,5 +83,6 @@ class Layout:
         space = self.layout[coords[0]][coords[1]]
         # After initialization, these positions should contain Space objects
         from penny_ante.space import Space
+
         assert isinstance(space, Space)
         return space
