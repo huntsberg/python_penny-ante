@@ -393,7 +393,7 @@ class Bet:
         else:
             raise ValueError("Color must be 'red' or 'black'")
             
-        return cls(bet_type, spaces, amount, chips, layout)
+        return cls(bet_type, spaces, amount, chips, layout, betting_rules)
 
     @classmethod
     def create_dozen_bet(
@@ -431,7 +431,7 @@ class Bet:
         else:
             raise ValueError("Dozen must be 1, 2, or 3")
             
-        return cls(bet_type, spaces, amount, chips, layout)
+        return cls(bet_type, spaces, amount, chips, layout, betting_rules)
 
     @classmethod
     def create_column_bet(
@@ -469,7 +469,7 @@ class Bet:
         else:
             raise ValueError("Column must be 1, 2, or 3")
             
-        return cls(bet_type, spaces, amount, chips, layout)
+        return cls(bet_type, spaces, amount, chips, layout, betting_rules)
 
     def __str__(self) -> str:
         """Return a string representation of the bet."""

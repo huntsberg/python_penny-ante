@@ -42,3 +42,50 @@ class Player:
         if self.chips is None:
             self.chips = Chips(value=value)
         self.chips.change_chips(count=count)
+        
+    def can_afford_bet(self, amount: int) -> bool:
+        """
+        Check if the player can afford a bet of the given amount.
+        
+        Args:
+            amount: The bet amount to check
+            
+        Returns:
+            True if player has sufficient chips, False otherwise
+        """
+        if self.chips is None:
+            return False
+        return self.chips.count >= amount
+        
+    def get_chip_balance(self) -> int:
+        """
+        Get the current chip balance for this player.
+        
+        Returns:
+            Number of chips the player has, or 0 if no chips
+        """
+        if self.chips is None:
+            return 0
+        return self.chips.count
+        
+    def get_chip_value(self) -> int:
+        """
+        Get the value of each chip for this player.
+        
+        Returns:
+            Value per chip, or 0 if no chips
+        """
+        if self.chips is None:
+            return 0
+        return self.chips.value
+        
+    def get_total_value(self) -> int:
+        """
+        Get the total monetary value of all chips.
+        
+        Returns:
+            Total value of all chips (count * value)
+        """
+        if self.chips is None:
+            return 0
+        return self.chips.count * self.chips.value

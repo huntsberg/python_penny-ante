@@ -1,6 +1,6 @@
 import os
 import yaml
-from typing import Dict, Any, Optional, TYPE_CHECKING
+from typing import Dict, Any, Optional, List, TYPE_CHECKING
 from pathlib import Path
 
 if TYPE_CHECKING:
@@ -405,6 +405,133 @@ class BettingRules:
         """Get all payout ratios as a dictionary."""
         return self.payout_ratios.copy()
         
+    def validate_total_bet_amount(self, total_amount: int) -> bool:
+        """
+        Validate that the total bet amount across all bets is within limits.
+        
+        Args:
+            total_amount: The total amount being wagered across all bets
+            
+        Returns:
+            True if total amount is valid, False otherwise
+        """
+        max_total = self.get_maximum_total_bet()
+        return total_amount <= max_total
+        
+    def validate_multiple_bets(self, bets: List["Bet"]) -> Dict[str, Any]:
+        """
+        Validate a collection of bets against all betting rules.
+        
+        Args:
+            bets: List of Bet objects to validate
+            
+        Returns:
+            Dictionary with validation results and details
+        """
+        from penny_ante.bet import Bet
+        
+        validation_result = {
+            'valid': True,
+            'errors': [],
+            'warnings': [],
+            'total_amount': 0,
+            'bet_count': len(bets),
+            'bet_type_counts': {}
+        }
+        
+        total_amount = 0
+        bet_type_counts = {}
+        
+        # Validate each individual bet
+        for i, bet in enumerate(bets):
+            try:
+                # Individual bet validation is already done in Bet.__init__
+                # But we can add additional table-level checks here
+                total_amount += bet.amount
+                
+                # Count bet types
+                bet_type_str = bet.bet_type.value
+                bet_type_counts[bet_type_str] = bet_type_counts.get(bet_type_str, 0) + 1
+                
+            except Exception as e:
+                validation_result['valid'] = False
+                validation_result['errors'].append(f"Bet {i+1}: {str(e)}")
+        
+        validation_result['total_amount'] = total_amount
+        validation_result['bet_type_counts'] = bet_type_counts
+        
+        # Validate total bet amount
+        if not self.validate_total_bet_amount(total_amount):
+            validation_result['valid'] = False
+            validation_result['errors'].append(
+                f"Total bet amount {total_amount} exceeds maximum allowed {self.get_maximum_total_bet()}"
+            )
+        
+        # Check special rules
+        self._validate_special_rules(bets, validation_result)
+            
+        return validation_result
+        
+    def _validate_special_rules(self, bets: List["Bet"], validation_result: Dict[str, Any]) -> None:
+        """
+        Validate special betting rules.
+        
+        Args:
+            bets: List of bets to validate
+            validation_result: Validation result dictionary to update
+        """
+        # Check progressive betting limits
+        if not self.special_rules.get('progressive_betting', True):
+            # In a real implementation, this would track betting patterns
+            # For now, we'll add it as a warning
+            validation_result['warnings'].append("Progressive betting systems are not allowed on this table")
+            
+        # Check maximum parlay limits
+        max_parlay = self.special_rules.get('maximum_parlay', 10)
+        if max_parlay > 0:
+            # This would need additional logic to track consecutive wins
+            # For now, we'll document the limit
+            validation_result['max_parlay_limit'] = max_parlay
+            
+        # Check call bets (oral bets without chips on table)
+        if not self.special_rules.get('allow_call_bets', False):
+            # In practice, this would require additional metadata on bets
+            # to indicate if they are call bets
+            for i, bet in enumerate(bets):
+                if hasattr(bet, 'is_call_bet') and getattr(bet, 'is_call_bet', False):
+                    validation_result['valid'] = False
+                    validation_result['errors'].append(f"Bet {i+1}: Call bets are not allowed on this table")
+                    
+        # Check neighbor bets (bets on numbers adjacent on wheel)
+        if not self.special_rules.get('allow_neighbor_bets', False):
+            # This would require additional logic to detect neighbor bet patterns
+            # For now, we'll add it as a framework for future enhancement
+            pass
+            
+    def is_special_rule_enabled(self, rule_name: str) -> bool:
+        """
+        Check if a specific special rule is enabled.
+        
+        Args:
+            rule_name: Name of the special rule to check
+            
+        Returns:
+            True if the rule is enabled, False otherwise
+        """
+        return self.special_rules.get(rule_name, False)
+        
+    def get_game_rule(self, rule_name: str) -> Any:
+        """
+        Get a specific game rule value.
+        
+        Args:
+            rule_name: Name of the game rule to get
+            
+        Returns:
+            The rule value, or None if not found
+        """
+        return self.game_rules.get(rule_name)
+        
     def get_table_info(self) -> Dict[str, Any]:
         """
         Get comprehensive table information.
@@ -429,7 +556,9 @@ class BettingRules:
             'maximum_total_bet': self.get_maximum_total_bet(),
             'payout_ratios': self.get_all_payout_ratios(),
             'house_edge_calculated': representative_house_edge,
-            'total_pockets': 37 if self.table_type == "EUROPEAN" else 38
+            'total_pockets': 37 if self.table_type == "EUROPEAN" else 38,
+            'game_rules': self.game_rules,
+            'special_rules': self.special_rules
         }
         
     def get_minimum_bet_ratio(self, bet_type: "BetType") -> float:

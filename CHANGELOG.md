@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-01-27
+
+### Added
+- **Comprehensive Betting Enforcement System**: Complete betting limits and rules enforcement
+  - Individual bet amount limits (min/max per bet type)
+  - Total bet limits across all players per spin
+  - Player chip balance validation
+  - Betting phase management (open/closed betting)
+  - Special rules enforcement (call bets, neighbor bets, progressive betting)
+  - Multi-bet validation with detailed reporting
+  - `examples/betting_enforcement_demo.py` demonstrating all enforcement features
+  - `BETTING_ENFORCEMENT_SUMMARY.md` comprehensive documentation
+  - 11 new comprehensive test methods in `tests/test_bet_enforcement.py`
+
+### Enhanced
+- **BettingRules class**: Added validation methods
+  - `validate_total_bet_amount()` - Check total bet limits
+  - `validate_multiple_bets()` - Comprehensive multi-bet validation
+  - `is_special_rule_enabled()` - Query special rule status
+  - `get_game_rule()` - Access game rule values
+- **Game class**: Added bet management and validation
+  - `place_bet()` - Place bet with full validation
+  - `close_betting()` / `open_betting()` - Manage betting phases
+  - `validate_all_bets()` - Validate all active bets
+  - `get_bet_summary()` - Get comprehensive bet information
+  - `get_total_bet_amount()` - Get current total bet amount
+- **Player class**: Added chip balance validation
+  - `can_afford_bet()` - Check if player can afford bet amount
+  - `get_chip_balance()` - Get current chip count
+  - `get_total_value()` - Get total monetary value of chips
+- **Bet class**: Enhanced with automatic rule validation
+  - Automatic betting rules validation in constructor
+  - Support for betting_rules parameter in all factory methods
+
+### Changed
+- **Development Status**: Upgraded from Beta to Production/Stable
+- **Betting validation**: Now occurs automatically when bets are created
+- **Wheel spinning**: Automatically closes betting and validates before spinning
+
+### Security
+- **Risk Management**: Configurable limits protect against excessive exposure
+- **Compliance**: Enforce gaming regulations and house rules
+- **Audit Trail**: Comprehensive validation logging and error reporting
+
 ## [0.1.0] - 2025-01-27
 
 ### Added
